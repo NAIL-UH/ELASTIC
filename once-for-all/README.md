@@ -1,0 +1,198 @@
+# Once-for-All: Train One Network and Specialize it for Efficient Deployment [[arXiv]](https://arxiv.org/abs/1908.09791) [[Slides]](https://file.lzhu.me/projects/OnceForAll/OFA%20Slides.pdf) [[Video]](https://youtu.be/a_OeT8MXzWI)
+```BibTex
+@inproceedings{
+  cai2020once,
+  title={Once for All: Train One Network and Specialize it for Efficient Deployment},
+  author={Han Cai and Chuang Gan and Tianzhe Wang and Zhekai Zhang and Song Han},
+  booktitle={International Conference on Learning Representations},
+  year={2020},
+  url={https://arxiv.org/pdf/1908.09791.pdf}
+}
+```
+**[News]** Once-for-All is available at [PyTorch Hub](https://pytorch.org/hub/pytorch_vision_once_for_all) now!
+
+**[News]** Once-for-All (OFA) Network is adopted by [SONY Neural Architecture Search Library](https://github.com/sony/nnabla-nas).
+
+**[News]** Once-for-All (OFA) Network is adopted by [ADI MAX78000/MAX78002 Model Training and Synthesis Tool](https://github.com/MaximIntegratedAI/ai8x-training).
+
+**[News]** Once-for-All (OFA) Network is adopted by Alibaba and ranked 1st in the open division of the MLPerf Inference Benchmark ([Datacenter](https://mlcommons.org/en/inference-datacenter-10/) and [Edge](https://mlcommons.org/en/inference-edge-10/)).
+
+**[News]** First place in the [CVPR 2020 Low-Power Computer Vision Challenge](https://lpcv.ai/2020CVPR/introduction), CPU detection and FPGA track.
+
+**[News]** OFA-ResNet50 is released. 
+
+**[News]** The [hands-on tutorial](https://hangzhang.org/CVPR2020/) of OFA is released! [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mit-han-lab/once-for-all/blob/master/tutorial/ofa.ipynb)
+
+**[News]** OFA is available via pip! Run **```pip install ofa```** to install the whole OFA codebase. 
+
+**[News]** First place in the 4th [Low-Power Computer Vision Challenge](https://lpcv.ai/competitions/2019), both classification and detection track.
+
+**[News]** First place in the 3rd [Low-Power Computer Vision Challenge](https://lpcv.ai/competitions/2019), DSP track at ICCV’19 using the Once-for-all Network.
+
+## Train once, specialize for many deployment scenarios
+![](figures/overview.png)
+
+## 80% top1 ImageNet accuracy under mobile setting
+![](figures/cnn_imagenet_new.png)
+
+![](figures/imagenet_80_acc.png)
+
+## Consistently outperforms MobileNetV3 on Diverse hardware platforms
+![](figures/diverse_hardware.png)
+
+## OFA-ResNet50 [[How to use]](https://github.com/mit-han-lab/once-for-all/blob/master/tutorial/ofa_resnet50_example.ipynb)
+<img src="figures/ofa_resnst50_results.png" width="60%" />
+
+## How to use / evaluate **OFA Networks**
+### Use
+```python
+""" OFA Networks.
+    Example: ofa_network = ofa_net('ofa_mbv3_d234_e346_k357_w1.0', pretrained=True)
+""" 
+from ofa.model_zoo import ofa_net
+ofa_network = ofa_net(net_id, pretrained=True)
+    
+# Randomly sample sub-networks from OFA network
+ofa_network.sample_active_subnet()
+random_subnet = ofa_network.get_active_subnet(preserve_weight=True)
+    
+# Manually set the sub-network
+ofa_network.set_active_subnet(ks=7, e=6, d=4)
+manual_subnet = ofa_network.get_active_subnet(preserve_weight=True)
+```
+
+### Evaluate
+
+`python eval_ofa_net.py --path 'Your path to imagenet' --net ofa_mbv3_d234_e346_k357_w1.0 `
+
+| OFA Network         | Design Space | Resolution | Width Multiplier |  Depth |  Expand Ratio |  kernel Size | 
+|----------------------|:----------:|:----------:|:---------:|:------------:|:---------:|:------------:|
+| ofa_resnet50 | ResNet50D | 128 - 224 | 0.65, 0.8, 1.0 | 0, 1, 2 | 0.2, 0.25, 0.35 | 3 |
+| ofa_mbv3_d234_e346_k357_w1.0 | MobileNetV3 | 128 - 224 | 1.0 | 2, 3, 4 | 3, 4, 6 | 3, 5, 7 |
+| ofa_mbv3_d234_e346_k357_w1.2 | MobileNetV3 | 160 - 224 | 1.2 | 2, 3, 4 | 3, 4, 6 | 3, 5, 7 |
+| ofa_proxyless_d234_e346_k357_w1.3 | ProxylessNAS | 128 - 224 | 1.3 | 2, 3, 4 | 3, 4, 6 | 3, 5, 7 |
+
+## How to use / evaluate **OFA Specialized Networks** 
+### Use
+```python
+""" OFA Specialized Networks.
+Example: net, image_size = ofa_specialized('flops@595M_top1@80.0_finetune@75', pretrained=True)
+""" 
+from ofa.model_zoo import ofa_specialized
+net, image_size = ofa_specialized(net_id, pretrained=True)
+```
+
+### Evaluate
+
+`python eval_specialized_net.py --path 'Your path to imagent' --net flops@595M_top1@80.0_finetune@75 `
+
+
+| Model Name | Details | Top-1 (%)    | Top-5 (%)    | #Params |  #MACs | 
+|----------------------|:----------:|:----------:|:----------:|:---------:|:------------:| 
+|   **ResNet50 Design Space** |
+| ofa-resnet50D-41 | resnet50D_MAC@4.1B_top1@79.8 | 79.8 | 94.7 | 30.9M | 4.1B |
+| ofa-resnet50D-37 | resnet50D_MAC@3.7B_top1@79.7 | 79.7 | 94.7 | 26.5M | 3.7B |
+| ofa-resnet50D-30 | resnet50D_MAC@3.0B_top1@79.3 | 79.3 | 94.5 | 28.7M | 3.0B |
+| ofa-resnet50D-24 | resnet50D_MAC@2.4B_top1@79.0 | 79.0 | 94.2 | 29.0M | 2.4B |
+| ofa-resnet50D-18 | resnet50D_MAC@1.8B_top1@78.3 | 78.3 | 94.0 | 20.7M | 1.8B |
+| ofa-resnet50D-12 | resnet50D_MAC@1.2B_top1@77.1_finetune@25 | 77.1 | 93.3 | 19.3M | 1.2B |
+| ofa-resnet50D-09 | resnet50D_MAC@0.9B_top1@76.3_finetune@25 | 76.3 | 92.9 | 14.5M | 0.9B |
+| ofa-resnet50D-06 | resnet50D_MAC@0.6B_top1@75.0_finetune@25 | 75.0 | 92.1 | 9.6M | 0.6B |
+|   **FLOPs** |
+| ofa-595M| flops@595M_top1@80.0_finetune@75          | 80.0     | 94.9     | 9.1M   | 595M |
+| ofa-482M | flops@482M_top1@79.6_finetune@75          | 79.6     | 94.8     | 9.1M   | 482M |
+| ofa-389M | flops@389M_top1@79.1_finetune@75          | 79.1     | 94.5     | 8.4M   | 389M |
+|  **LG G8** |
+| ofa-lg-24 | LG-G8_lat@24ms_top1@76.4_finetune@25      | 76.4     | 93.0     | 5.8M   | 230M |
+| ofa-lg-16 | LG-G8_lat@16ms_top1@74.7_finetune@25      | 74.7     | 92.0     | 5.8M   | 151M |
+| ofa-lg-11 | LG-G8_lat@11ms_top1@73.0_finetune@25      | 73.0     | 91.1     | 5.0M   | 103M |
+| ofa-lg-8 | LG-G8_lat@8ms_top1@71.1_finetune@25       | 71.1     | 89.7     | 4.1M   | 74M  |
+|  **Samsung S7 Edge** |
+| ofa-s7edge-88 | s7edge_lat@88ms_top1@76.3_finetune@25     | 76.3     | 92.9     | 6.4M   | 219M |
+| ofa-s7edge-58| s7edge_lat@58ms_top1@74.7_finetune@25     | 74.7     | 92.0     | 4.6M   | 145M |
+| ofa-s7edge-41 | s7edge_lat@41ms_top1@73.1_finetune@25     | 73.1     | 91.0     | 4.7M   | 96M |
+| ofa-s7edge-29 | s7edge_lat@29ms_top1@70.5_finetune@25     | 70.5     | 89.5     | 3.8M   | 66M  |
+|  **Samsung Note8** |
+| ofa-note8-65 | note8_lat@65ms_top1@76.1_finetune@25      | 76.1     | 92.7     | 5.3M   | 220M |
+| ofa-note8-49 | note8_lat@49ms_top1@74.9_finetune@25      | 74.9     | 92.1     | 6.0M   | 164M |
+| ofa-note8-31 | note8_lat@31ms_top1@72.8_finetune@25      | 72.8     | 90.8     | 4.6M   | 101M |
+| ofa-note8-22 | note8_lat@22ms_top1@70.4_finetune@25      | 70.4     | 89.3     | 4.3M   | 67M  |
+|  **Samsung Note10** |
+| ofa-note10-64 | note10_lat@64ms_top1@80.2_finetune@75     | 80.2     | 95.1     | 9.1M   | 743M |
+| ofa-note10-50 | note10_lat@50ms_top1@79.7_finetune@75     | 79.7     | 94.9     | 9.1M   | 554M |
+| ofa-note10-41 | note10_lat@41ms_top1@79.3_finetune@75     | 79.3     | 94.5     | 9.0M   | 457M |
+| ofa-note10-30 | note10_lat@30ms_top1@78.4_finetune@75     | 78.4     | 94.2     | 7.5M   | 339M |
+| ofa-note10-22 | note10_lat@22ms_top1@76.6_finetune@25     | 76.6     | 93.1     | 5.9M   | 237M |
+| ofa-note10-16 | note10_lat@16ms_top1@75.5_finetune@25     | 75.5     | 92.3     | 4.9M   | 163M |
+| ofa-note10-11 | note10_lat@11ms_top1@73.6_finetune@25     | 73.6     | 91.2     | 4.3M   | 110M |
+| ofa-note10-08 | note10_lat@8ms_top1@71.4_finetune@25      | 71.4     | 89.8     | 3.8M   | 79M  |
+|  **Google Pixel1** |
+| ofa-pixel1-143 | pixel1_lat@143ms_top1@80.1_finetune@75     | 80.1     | 95.0     | 9.2M   | 642M |
+| ofa-pixel1-132 | pixel1_lat@132ms_top1@79.8_finetune@75     | 79.8     | 94.9     | 9.2M   | 593M |
+| ofa-pixel1-79 | pixel1_lat@79ms_top1@78.7_finetune@75     | 78.7     | 94.2     | 8.2M   | 356M |
+| ofa-pixel1-58 | pixel1_lat@58ms_top1@76.9_finetune@75     | 76.9     | 93.3     | 5.8M   | 230M |
+| ofa-pixel1-40 | pixel1_lat@40ms_top1@74.9_finetune@25     | 74.9     | 92.1     | 6.0M   | 162M |
+| ofa-pixel1-28 | pixel1_lat@28ms_top1@73.3_finetune@25     | 73.3     | 91.0     | 5.2M   | 109M |
+| ofa-pixel1-20 | pixel1_lat@20ms_top1@71.4_finetune@25     | 71.4     | 89.8     | 4.3M   | 77M |
+|  **Google Pixel2** |
+| ofa-pixel2-62 | pixel2_lat@62ms_top1@75.8_finetune@25      | 75.8     | 92.7     | 5.8M   | 208M |
+| ofa-pixel2-50 | pixel2_lat@50ms_top1@74.7_finetune@25      | 74.7     | 91.9     | 4.7M   | 166M |
+| ofa-pixel2-35 | pixel2_lat@35ms_top1@73.4_finetune@25      | 73.4     | 91.1     | 5.1M   | 113M |
+| ofa-pixel2-25 | pixel2_lat@25ms_top1@71.5_finetune@25      | 71.5     | 90.1     | 4.1M   | 79M  |
+|  **1080ti GPU (Batch Size 64)** |
+| ofa-1080ti-27 | 1080ti_gpu64@27ms_top1@76.4_finetune@25      | 76.4     | 93.0     | 6.5M   | 397M |
+| ofa-1080ti-22 | 1080ti_gpu64@22ms_top1@75.3_finetune@25      | 75.3     | 92.4     | 5.2M   | 313M |
+| ofa-1080ti-15 | 1080ti_gpu64@15ms_top1@73.8_finetune@25      | 73.8     | 91.3     | 6.0M   | 226M |
+| ofa-1080ti-12 | 1080ti_gpu64@12ms_top1@72.6_finetune@25      | 72.6     | 90.9     | 5.9M   | 165M  |
+|  **V100 GPU (Batch Size 64)** |
+| ofa-v100-11 | v100_gpu64@11ms_top1@76.1_finetune@25      | 76.1     | 92.7     | 6.2M   | 352M |
+| ofa-v100-09 | v100_gpu64@9ms_top1@75.3_finetune@25      | 75.3     | 92.4     | 5.2M   | 313M |
+| ofa-v100-06 | v100_gpu64@6ms_top1@73.0_finetune@25      | 73.0     | 91.1     | 4.9M   | 179M |
+| ofa-v100-05 | v100_gpu64@5ms_top1@71.6_finetune@25      | 71.6     | 90.3     | 5.2M   | 141M  |
+|  **Jetson TX2 GPU (Batch Size 16)** |
+| ofa-tx2-96 | tx2_gpu16@96ms_top1@75.8_finetune@25      | 75.8     | 92.7     | 6.2M   | 349M |
+| ofa-tx2-80 | tx2_gpu16@80ms_top1@75.4_finetune@25      | 75.4     | 92.4     | 5.2M   | 313M |
+| ofa-tx2-47 | tx2_gpu16@47ms_top1@72.9_finetune@25      | 72.9     | 91.1     | 4.9M   | 179M |
+| ofa-tx2-35 | tx2_gpu16@35ms_top1@70.3_finetune@25      | 70.3     | 89.4     | 4.3M   | 121M  |
+|  **Intel Xeon CPU with MKL-DNN (Batch Size 1)** |
+| ofa-cpu-17 | cpu_lat@17ms_top1@75.7_finetune@25      | 75.7     | 92.6     | 4.9M   | 365M |
+| ofa-cpu-15 | cpu_lat@15ms_top1@74.6_finetune@25      | 74.6     | 92.0     | 4.9M   | 301M |
+| ofa-cpu-11 | cpu_lat@11ms_top1@72.0_finetune@25      | 72.0     | 90.4     | 4.4M   | 160M |
+| ofa-cpu-10 | cpu_lat@10ms_top1@71.1_finetune@25      | 71.1     | 89.9     | 4.2M   | 143M  |
+
+## How to train **OFA Networks**
+```bash
+mpirun -np 32 -H <server1_ip>:8,<server2_ip>:8,<server3_ip>:8,<server4_ip>:8 \
+    -bind-to none -map-by slot \
+    -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH \
+    python train_ofa_net.py
+```
+or 
+```bash
+horovodrun -np 32 -H <server1_ip>:8,<server2_ip>:8,<server3_ip>:8,<server4_ip>:8 \
+    python train_ofa_net.py
+```
+
+## Introduction Video
+
+[![Watch the video](figures/video_figure.png)](https://www.youtube.com/watch?v=a_OeT8MXzWI&feature=youtu.be)
+
+## Hands-on Tutorial Video
+
+[![Watch the video](figures/ofa-tutorial.jpg)](https://www.youtube.com/watch?v=wrsid5tvuSM)
+
+
+## Requirement
+* Python 3.6+
+* Pytorch 1.4.0+
+* ImageNet Dataset 
+* Horovod
+
+## Related work on automated and efficient deep learning:
+[ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware](https://arxiv.org/pdf/1812.00332.pdf) (ICLR’19)
+
+[AutoML for Architecting Efficient and Specialized Neural Networks](https://ieeexplore.ieee.org/abstract/document/8897011) (IEEE Micro)
+
+[AMC: AutoML for Model Compression and Acceleration on Mobile Devices](https://arxiv.org/pdf/1802.03494.pdf) (ECCV’18)
+
+[HAQ: Hardware-Aware Automated Quantization](https://arxiv.org/pdf/1811.08886.pdf)  (CVPR’19, oral)
