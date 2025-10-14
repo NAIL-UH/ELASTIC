@@ -14,6 +14,11 @@ pip install -r once-for-all/requirements.txt
 pip install -r mcunet/requirements.txt
 ```
 
+And change to project root using this command:
+```root
+cd yolov3
+```
+
 ## Search for networks
 ### Step 1: Supernet Training
 
@@ -77,6 +82,9 @@ For convenience see **tutorial.ipynb**
 ```finetune
 python trainofa.py --img 224 --batch 64 --epochs 300 --data data/voc.yaml --cfg models/yolov3.yaml --weights '' --filename runs/train/supernet/weights/best.pt --task subnet --name subnet
 ```
+
+### Pretrained Weights and Data
+See **pretrained** folder
 
 If you find ELASTIC useful for your work please cite:
 ```
