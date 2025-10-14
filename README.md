@@ -3,6 +3,8 @@ This repository provides the official code used in the paper: [**ELASTIC: Effici
 
 The full paper is available at: [ELASTIC Paper](https://arxiv.org/pdf/2503.21999)
 
+![introduce method](images/method.png)
+
 ## Installation
 
 This ELASTIC implementation is based on [yolov3](https://github.com/ultralytics/yolov3), [mcunet](https://github.com/mit-han-lab/mcunet), and [once-for-all](https://github.com/mit-han-lab/once-for-all).
