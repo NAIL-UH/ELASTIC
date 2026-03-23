@@ -1,7 +1,7 @@
 # ELASTIC
 This repository provides the official code used in the paper: [**ELASTIC: Efficient Once For All Iterative Search for Object Detection on Microcontrollers**](https://nail-uh.github.io/elastic.github.io/).
 
-The full paper is available at: [ELASTIC Paper](https://arxiv.org/pdf/2503.21999v2)
+The full paper is available at: [ELASTIC Paper](https://arxiv.org/pdf/2503.21999)
 
 ![introduce method](images/method.png)
 
